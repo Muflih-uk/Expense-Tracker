@@ -1,7 +1,6 @@
 import 'package:expense_tracker/Constants/app_color.dart';
 import 'package:expense_tracker/Provider/dashboard_provider.dart';
 import 'package:flutter/material.dart';
-import 'Widgets/bottom_bar.dart';
 import 'Widgets/app_widgets.dart';
 import 'Widgets/home_widgets.dart';
 import 'package:provider/provider.dart';
@@ -42,9 +41,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final dashboardData = context.watch<DashboardProvider>().data;
+
+    // Summary
     final summary = dashboardData!['summary'];
-    final income = summary?['total_income'] ?? "0";
-    final expenses = summary?['total_expenses'] ?? "0";
+    final income = double.tryParse(summary?['total_income'].toString() ?? '0') ?? 0.0;
+    final expenses = double.tryParse(summary?['total_expenses'].toString() ?? '0') ?? 0.0;
+
+    final recentTransaction = dashboardData['recent_transactions'];
+
+
     final account = context.watch<AccountProvider>().account;
     return Scaffold(
       backgroundColor: AppColor.bgColor,
@@ -81,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 30),
 
               // Add the Expense and Salary
-              HomeWidgets.addTrans(),
+              HomeWidgets.addTrans(
+                trans: recentTransaction
+              ),
             ],
           ),
         ),
@@ -91,7 +98,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onTapHandler: pressedPlusButton,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: const BottomBar(key: Key('home bottom Bar')),
+      bottomNavigationBar: const BottomAppBar(key: Key('home bottom Bar'),color: Colors.white,),
     );
   }
 }

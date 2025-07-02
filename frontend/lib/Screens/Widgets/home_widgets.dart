@@ -45,7 +45,7 @@ class HomeWidgets{
   // Total Expense and Total Salary
   static GestureDetector totalDiv({
     required String typeOfTrans,
-    required int cash
+    required double cash
   }){
     return GestureDetector(
       child: Container(
@@ -105,7 +105,9 @@ class HomeWidgets{
   }
 
   // Add the Expense and Salary
-  static Container addTrans(){
+  static Container addTrans({
+    required List<dynamic> trans
+  }){
     return Container(
       height: 446,
       decoration: BoxDecoration(
@@ -115,7 +117,37 @@ class HomeWidgets{
         ),
         color: AppColor.appPrimary
       ),
-      child: Text("Soon")
+      child: ListView.builder(
+        itemCount: trans.length,
+        itemBuilder: (_, index){
+          return ListTile(
+            tileColor: Colors.grey[200],
+            title: Text(
+              "${trans[index]['title']}",
+              style: TextStyle(
+                fontWeight: FontWeight.bold
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Transaction Type: ${trans[index]['transaction_type']}"
+                ),
+                Text(
+                  "Date: ${trans[index]['date']}"
+                )
+              ],
+            ),
+            trailing: Text(
+              "${trans[index]['amount']}",
+              style: TextStyle(
+                color: Colors.black
+              ),
+            ),
+          );
+        }
+      )
     );
   }
 
