@@ -1,9 +1,3 @@
-
----
-
-## ✅ 2. **Expense Tracker App** 
-
-```markdown
 # 💰 Expense Tracker
 
 A personal finance management app to track income and expenses. Built with **Flutter** frontend and a **Django** backend.
@@ -19,10 +13,3 @@ A personal finance management app to track income and expenses. Built with **Flu
 - **Backend**: Django (REST API)
 - **State Management**: Provider
 - **HTTP Client**: Dio
-
-## 🚀 Getting Started
-
-### Backend Setup (Django)
-```bash
-pip install django djangorestframework
-python manage.py runserver
