@@ -45,6 +45,8 @@
 		<true/>
 		<key>UIApplicationSupportsIndirectInputEvents</key>
 		<true/>
+		<key>NSPhotoLibraryUsageDescription</key>
+		<string>monex uses your photo library to attach receipts to transactions.</string>
 		<key>UIStatusBarHidden</key>
 		<false/>
 	</dict>
