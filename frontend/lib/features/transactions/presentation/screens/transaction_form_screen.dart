@@ -193,7 +193,12 @@ class _TransactionFormScreenState extends State<TransactionFormScreen> {
             );
           }
           return SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+            padding: EdgeInsets.fromLTRB(
+              20,
+              8,
+              20,
+              32 + MediaQuery.paddingOf(context).bottom,
+            ),
             child: Form(
               key: _formKey,
               child: Column(

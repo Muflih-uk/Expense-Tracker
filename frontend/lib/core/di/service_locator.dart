@@ -8,6 +8,8 @@ import 'package:expense_tracker/features/auth/data/repositories/auth_repository_
 import 'package:expense_tracker/features/auth/domain/repositories/auth_repository.dart';
 import 'package:expense_tracker/features/auth/domain/usecases/auth_usecases.dart';
 import 'package:expense_tracker/features/auth/presentation/auth_bloc.dart';
+import 'package:expense_tracker/features/boot/data/boot_data_source.dart';
+import 'package:expense_tracker/features/boot/presentation/boot_cubit.dart';
 import 'package:expense_tracker/features/categories/data/datasources/category_remote_datasource.dart';
 import 'package:expense_tracker/features/categories/data/repositories/category_repository_impl.dart';
 import 'package:expense_tracker/features/categories/domain/repositories/category_repository.dart';
@@ -24,6 +26,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 late LocalStorage localStorage;
 late DioClient dioClient;
+late BootDataSource bootDataSource;
 
 late AuthRepository authRepository;
 late UserRepository userRepository;
@@ -33,11 +36,15 @@ late TransactionRepository transactionRepository;
 late DashboardRepository dashboardRepository;
 
 late AuthBloc authBloc;
+late BootCubit bootCubit;
 
 Future<void> initDependencies() async {
   final prefs = await SharedPreferences.getInstance();
   localStorage = LocalStorage(prefs);
   dioClient = DioClient(localStorage: localStorage);
+
+  bootDataSource = BootDataSource(dioClient);
+  bootCubit = BootCubit(bootDataSource);
 
   final authRemote = AuthRemoteDataSource(dioClient);
   final userRemote = UserRemoteDataSource(dioClient);

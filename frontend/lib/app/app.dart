@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/di/service_locator.dart';
 import 'package:expense_tracker/core/theme/app_theme.dart';
 import 'package:expense_tracker/features/accounts/presentation/accounts_bloc.dart';
 import 'package:expense_tracker/features/auth/presentation/auth_bloc.dart';
+import 'package:expense_tracker/features/boot/presentation/boot_cubit.dart';
 import 'package:expense_tracker/features/categories/presentation/categories_bloc.dart';
 import 'package:expense_tracker/features/dashboard/presentation/dashboard_bloc.dart';
 import 'package:expense_tracker/features/onboarding/presentation/onboarding_cubit.dart';
@@ -39,6 +40,7 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
     return MultiBlocProvider(
       providers: [
         BlocProvider<AuthBloc>(create: (_) => authBloc),
+        BlocProvider<BootCubit>(create: (_) => bootCubit),
         BlocProvider<OnboardingCubit>(
           create: (_) => OnboardingCubit(localStorage)..load(),
         ),
@@ -59,7 +61,7 @@ class _ExpenseTrackerAppState extends State<ExpenseTrackerApp> {
         ),
       ],
       child: MaterialApp.router(
-        title: 'monex',
+        title: 'Paisa Book',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
         routerConfig: _router,

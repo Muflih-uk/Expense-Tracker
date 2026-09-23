@@ -60,91 +60,106 @@ class _RegisterScreenState extends State<RegisterScreen> {
         builder: (context, state) {
           final submitting = state.isSubmitting;
           final fieldErrors = state.fieldErrors;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.sizeOf(context).height,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 70),
-                  const AuthHeader(subtitle: 'Create your free account'),
-                  const SizedBox(height: 32),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        AppTextField(
-                          controller: _nameController,
-                          label: 'Name',
-                          hintText: 'John Doe',
-                          prefixIcon: Icons.person_outline_rounded,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) =>
-                              fieldErrors['name']?.first ??
-                              Validators.required(value, 'Enter your name'),
-                          errorText: fieldErrors['name']?.first,
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          hintText: 'john@example.com',
-                          prefixIcon: Icons.mail_outline_rounded,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
-                          validator: (value) =>
-                              fieldErrors['email']?.first ??
-                              Validators.email(value),
-                          errorText: fieldErrors['email']?.first,
-                        ),
-                        const SizedBox(height: 16),
-                        AppTextField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          hintText: 'Minimum 8 characters',
-                          prefixIcon: Icons.lock_outline_rounded,
-                          obscureText: _obscure,
-                          textInputAction: TextInputAction.done,
-                          validator: (value) =>
-                              fieldErrors['password']?.first ??
-                              Validators.password(value),
-                          errorText: fieldErrors['password']?.first,
-                          suffixIcon: IconButton(
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                            icon: Icon(
-                              _obscure
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              size: 20,
-                              color: AppColors.hint,
-                            ),
+          return Stack(
+            children: [
+              const AuthBackdrop(),
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.sizeOf(context).height,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.paddingOf(context).top + 20,
+                      ),
+                      const AuthBrand(
+                        subtitle: 'Create your free account',
+                      ),
+                      const SizedBox(height: 28),
+                      AuthCard(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              AppTextField(
+                                controller: _nameController,
+                                label: 'Name',
+                                hintText: 'John Doe',
+                                prefixIcon: Icons.person_outline_rounded,
+                                textInputAction: TextInputAction.next,
+                                validator: (value) =>
+                                    fieldErrors['name']?.first ??
+                                    Validators.required(
+                                      value,
+                                      'Enter your name',
+                                    ),
+                                errorText: fieldErrors['name']?.first,
+                              ),
+                              const SizedBox(height: 16),
+                              AppTextField(
+                                controller: _emailController,
+                                label: 'Email',
+                                hintText: 'john@example.com',
+                                prefixIcon: Icons.mail_outline_rounded,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                validator: (value) =>
+                                    fieldErrors['email']?.first ??
+                                    Validators.email(value),
+                                errorText: fieldErrors['email']?.first,
+                              ),
+                              const SizedBox(height: 16),
+                              AppTextField(
+                                controller: _passwordController,
+                                label: 'Password',
+                                hintText: 'Minimum 8 characters',
+                                prefixIcon: Icons.lock_outline_rounded,
+                                obscureText: _obscure,
+                                textInputAction: TextInputAction.done,
+                                validator: (value) =>
+                                    fieldErrors['password']?.first ??
+                                    Validators.password(value),
+                                errorText: fieldErrors['password']?.first,
+                                suffixIcon: IconButton(
+                                  onPressed: () =>
+                                      setState(() => _obscure = !_obscure),
+                                  icon: Icon(
+                                    _obscure
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 20,
+                                    color: AppColors.hint,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                      GradientButton(
+                        label: 'Create Account',
+                        icon: Icons.person_add_alt_1_rounded,
+                        isLoading: submitting,
+                        onPressed: submitting ? null : () => _submit(),
+                      ),
+                      const SizedBox(height: 14),
+                      AuthToggleRow(
+                        prompt: 'Already have an account?',
+                        linkLabel: 'Sign in',
+                        onLink: () => context.go('/login'),
+                      ),
+                      SizedBox(
+                        height: 24 + MediaQuery.paddingOf(context).bottom,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 28),
-                  GradientButton(
-                    label: 'Create Account',
-                    icon: Icons.person_add_alt_1_rounded,
-                    isLoading: submitting,
-                    onPressed:
-                        submitting ? null : () => _submit(),
-                  ),
-                  const SizedBox(height: 14),
-                  AuthToggleRow(
-                    prompt: 'Already have an account?',
-                    linkLabel: 'Sign in',
-                    onLink: () => context.go('/login'),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
-            ),
+            ],
           );
         },
       ),

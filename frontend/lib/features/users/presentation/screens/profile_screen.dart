@@ -139,53 +139,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return RefreshIndicator(
             onRefresh: () async =>
                 context.read<ProfileBloc>().add(const ProfileRefreshed()),
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(20),
-              children: [
-                const SizedBox(height: 10),
-                _buildIdentity(state),
-                const SizedBox(height: 20),
-                _buildMenuSection(context),
-                const SizedBox(height: 20),
-                Container(
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(18),
-                    boxShadow: [
-                      BoxShadow(
-                        color: const Color(0xFF667085).withValues(alpha: 0.06),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    children: [
-                      _MenuTile(
-                        icon: Icons.delete_forever_rounded,
-                        iconColor: AppColors.expense,
-                        label: 'Delete account',
-                        onTap: _deleteAccount,
-                        loading: state.isDeleting,
-                      ),
-                    ],
-                  ),
-                ),
-                if (state.version != null) ...[
-                  const SizedBox(height: 24),
-                  Center(
-                    child: Text(
-                      'monex v${state.version}',
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 12,
-                        color: AppColors.hint,
-                      ),
+            child: SafeArea(
+              child: ListView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 10, 20, 20),
+                children: [
+                  _buildIdentity(state),
+                  const SizedBox(height: 20),
+                  _buildMenuSection(context),
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(18),
+                      boxShadow: [appShadow()],
+                    ),
+                    child: Column(
+                      children: [
+                        _MenuTile(
+                          icon: Icons.delete_forever_rounded,
+                          iconColor: AppColors.expense,
+                          label: 'Delete account',
+                          onTap: _deleteAccount,
+                          loading: state.isDeleting,
+                        ),
+                      ],
                     ),
                   ),
+                  if (state.version != null) ...[
+                    const SizedBox(height: 24),
+                    Center(
+                      child: Text(
+                        'Paisa Book v${state.version}',
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 12,
+                          color: AppColors.hint,
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
           );
         },
@@ -200,31 +195,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
+        gradient: AppColors.heroGradient,
+        borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF667085).withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 60,
-            height: 60,
-            decoration: const BoxDecoration(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: AppColors.buttonGradient,
+              color: Colors.white.withValues(alpha: 0.16),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.4),
+                width: 1.5,
+              ),
             ),
             alignment: Alignment.center,
             child: Text(
               user?.initials ?? '?',
               style: const TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 22,
+                fontSize: 24,
                 fontWeight: FontWeight.w800,
                 color: Colors.white,
               ),
@@ -241,9 +240,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 18,
+                    fontSize: 19,
                     fontWeight: FontWeight.w800,
-                    color: AppColors.textPrimary,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -251,7 +250,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   email,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: Color(0xD9FFFFFF),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Text(
+                    'Pro Member',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.white,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -262,7 +285,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.primary,
+                color: Colors.white,
               ),
             ),
         ],
@@ -273,16 +296,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildMenuSection(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF667085).withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
+color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [appShadow()],
+                  ),
       child: Column(
         children: [
           _MenuTile(

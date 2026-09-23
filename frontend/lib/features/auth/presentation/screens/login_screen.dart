@@ -56,81 +56,96 @@ class _LoginScreenState extends State<LoginScreen> {
         builder: (context, state) {
           final submitting = state.isSubmitting;
           final fieldErrors = state.fieldErrors;
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.sizeOf(context).height,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const SizedBox(height: 90),
-                  const AuthHeader(subtitle: 'Welcome back, sign in to continue'),
-                  const SizedBox(height: 44),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        AppTextField(
-                          controller: _emailController,
-                          label: 'Email',
-                          hintText: 'john@example.com',
-                          prefixIcon: Icons.mail_outline_rounded,
-                          keyboardType: TextInputType.emailAddress,
-                          textInputAction: TextInputAction.next,
+          return Stack(
+            children: [
+              const AuthBackdrop(),
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.sizeOf(context).height,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.paddingOf(context).top + 24,
+                      ),
+                      const AuthBrand(
+                        subtitle: 'Welcome back, sign in to continue',
+                      ),
+                      const SizedBox(height: 32),
+                      AuthCard(
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              AppTextField(
+                                controller: _emailController,
+                                label: 'Email',
+                                hintText: 'john@example.com',
+                                prefixIcon: Icons.mail_outline_rounded,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
 validator: (value) => fieldErrors['email']?.first ??
-                            (value == null || value.trim().isEmpty
-                                ? 'Enter your email'
-                                : null),
-                          errorText: fieldErrors['email']?.first,
-                        ),
-                        const SizedBox(height: 18),
-                        AppTextField(
-                          controller: _passwordController,
-                          label: 'Password',
-                          hintText: '••••••••',
-                          prefixIcon: Icons.lock_outline_rounded,
-                          obscureText: _obscure,
-                          textInputAction: TextInputAction.done,
-                          validator: (value) =>
-                              fieldErrors['password']?.first ??
-                              (value == null || value.isEmpty
-                                  ? 'Enter your password'
-                                  : null),
-                          errorText: fieldErrors['password']?.first,
-                          suffixIcon: IconButton(
-                            onPressed: () =>
-                                setState(() => _obscure = !_obscure),
-                            icon: Icon(
-                              _obscure
-                                  ? Icons.visibility_off_outlined
-                                  : Icons.visibility_outlined,
-                              size: 20,
-                              color: AppColors.hint,
-                            ),
+                                  (value == null || value.trim().isEmpty
+                                      ? 'Enter your email'
+                                      : null),
+                                errorText: fieldErrors['email']?.first,
+                              ),
+                              const SizedBox(height: 16),
+                              AppTextField(
+                                controller: _passwordController,
+                                label: 'Password',
+                                hintText: '••••••••',
+                                prefixIcon: Icons.lock_outline_rounded,
+                                obscureText: _obscure,
+                                textInputAction: TextInputAction.done,
+                                validator: (value) =>
+                                    fieldErrors['password']?.first ??
+                                    (value == null || value.isEmpty
+                                        ? 'Enter your password'
+                                        : null),
+                                errorText: fieldErrors['password']?.first,
+                                suffixIcon: IconButton(
+                                  onPressed: () =>
+                                      setState(() => _obscure = !_obscure),
+                                  icon: Icon(
+                                    _obscure
+                                        ? Icons.visibility_off_outlined
+                                        : Icons.visibility_outlined,
+                                    size: 20,
+                                    color: AppColors.hint,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      const SizedBox(height: 20),
+                      GradientButton(
+                        label: 'Sign In',
+                        icon: Icons.login_rounded,
+                        isLoading: submitting,
+                        onPressed: submitting
+                            ? null
+                            : () => _submit(context.read<AuthBloc>()),
+                      ),
+                      const SizedBox(height: 14),
+                      AuthToggleRow(
+                        prompt: "Don't have an account?",
+                        linkLabel: 'Register here',
+                        onLink: () => context.go('/register'),
+                      ),
+                      SizedBox(
+                        height: 24 + MediaQuery.paddingOf(context).bottom,
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 28),
-                  GradientButton(
-                    label: 'Sign In',
-                    icon: Icons.login_rounded,
-                    isLoading: submitting,
-                    onPressed: submitting ? null : () => _submit(context.read<AuthBloc>()),
-                  ),
-                  const SizedBox(height: 14),
-                  AuthToggleRow(
-                    prompt: "Don't have an account?",
-                    linkLabel: 'Register here',
-                    onLink: () => context.go('/register'),
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                ),
               ),
-            ),
+            ],
           );
         },
       ),

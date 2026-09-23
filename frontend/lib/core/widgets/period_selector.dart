@@ -1,6 +1,9 @@
 import 'package:expense_tracker/core/constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
+export 'package:expense_tracker/core/widgets/animated_amount.dart'
+    show CountUpText, formatThousands;
+
 class PeriodSelector extends StatelessWidget {
   const PeriodSelector({
     super.key,
@@ -33,11 +36,11 @@ class PeriodSelector extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 gradient: isSelected ? AppColors.buttonGradient : null,
                 boxShadow: isSelected
-                    ? [
+                    ? const [
                         BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.28),
+                          color: Color(0x334F46E5),
                           blurRadius: 10,
-                          offset: const Offset(0, 4),
+                          offset: Offset(0, 4),
                         ),
                       ]
                     : null,
@@ -58,48 +61,4 @@ class PeriodSelector extends StatelessWidget {
       ),
     );
   }
-}
-
-class CountUpText extends StatelessWidget {
-  const CountUpText({
-    super.key,
-    required this.value,
-    this.style,
-  });
-
-  final String value;
-  final TextStyle? style;
-
-  @override
-  Widget build(BuildContext context) {
-    final amount = double.tryParse(
-      value.replaceAll('₹', '').replaceAll(',', ''),
-    );
-    if (amount == null) return Text(value, style: style);
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: amount),
-      duration: const Duration(milliseconds: 800),
-      curve: Curves.easeOutCubic,
-      builder: (context, animated, _) {
-        final sign = amount < 0 ? '-' : '';
-        return Text(
-          '$sign${formatThousands(animated.abs())}',
-          style: style,
-        );
-      },
-    );
-  }
-}
-
-String formatThousands(double value) {
-  final fixed = value.toStringAsFixed(2);
-  final parts = fixed.split('.');
-  final whole = parts[0];
-  final buffer = StringBuffer();
-  for (var i = 0; i < whole.length; i++) {
-    if (i > 0 && (whole.length - i) % 3 == 0) buffer.write(',');
-    buffer.write(whole[i]);
-  }
-  return '₹$buffer.${parts[1]}';
 }

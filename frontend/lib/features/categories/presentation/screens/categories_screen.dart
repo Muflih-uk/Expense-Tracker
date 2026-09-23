@@ -105,28 +105,31 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           return RefreshIndicator(
             onRefresh: () async =>
                 context.read<CategoriesBloc>().add(const CategoriesRefreshed()),
-            child: CustomScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              slivers: [
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 18, 20, 6),
-                    child: Text(
-                      'Categories',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 24,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.textPrimary,
+            child: SafeArea(
+              bottom: false,
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  const SliverToBoxAdapter(
+                    child: Padding(
+                      padding: EdgeInsets.fromLTRB(20, 10, 20, 6),
+                      child: Text(
+                        'Categories',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                SliverPadding(
-                  padding: const EdgeInsets.all(16),
-                  sliver: _buildBody(state),
-                ),
-              ],
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: _buildBody(state),
+                  ),
+                ],
+              ),
             ),
           );
         },
@@ -197,91 +200,99 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     child: child,
                   ),
                 ),
-                child: Material(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(16),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16),
-                    onTap: () => context.push(
-                      '/category/${category.id}?title=${Uri.encodeQueryComponent(category.title)}',
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(18),
+                    boxShadow: [appShadow()],
+                  ),
+                  child: Material(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(18),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: () => context.push(
+                        '/category/${category.id}?title=${Uri.encodeQueryComponent(category.title)}',
                       ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 46,
-                            height: 46,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.1),
-                              shape: BoxShape.circle,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 46,
+                              height: 46,
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.category_outlined,
+                                color: AppColors.primary,
+                                size: 22,
+                              ),
                             ),
-                            child: const Icon(
-                              Icons.category_outlined,
-                              color: AppColors.primary,
-                              size: 22,
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    category.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.textPrimary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${category.transactionCount} transactions',
+                                    style:
+                                        Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            IconButton(
+                              onPressed: () => _delete(category),
+                              icon: const Icon(
+                                Icons.delete_outline_rounded,
+                                color: AppColors.hint,
+                                size: 22,
+                              ),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Text(
-                                  category.title,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
+                                  formatAmount(category.totalAmount),
                                   style: const TextStyle(
                                     fontFamily: 'Inter',
                                     fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.expense,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  '${category.transactionCount} transactions',
-                                  style: Theme.of(context).textTheme.bodySmall,
-                                ),
+                                if (total > 0)
+                                  Text(
+                                    '${(category.totalAmount / total * 100).toStringAsFixed(0)}%',
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.hint,
+                                    ),
+                                  ),
                               ],
                             ),
-                          ),
-                          IconButton(
-                            onPressed: () => _delete(category),
-                            icon: const Icon(
-                              Icons.delete_outline_rounded,
-                              color: AppColors.hint,
-                              size: 22,
-                            ),
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                formatAmount(category.totalAmount),
-                                style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: AppColors.expense,
-                                ),
-                              ),
-                              if (total > 0)
-                                Text(
-                                  '${(category.totalAmount / total * 100).toStringAsFixed(0)}%',
-                                  style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.hint,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),

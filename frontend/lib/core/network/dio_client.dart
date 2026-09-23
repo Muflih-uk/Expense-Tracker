@@ -2,13 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:expense_tracker/core/storage/local_storage.dart';
 
 class DioClient {
-  DioClient({required LocalStorage localStorage}) : _localStorage = localStorage {
+  DioClient({required LocalStorage localStorage})
+    : _localStorage = localStorage {
     dio = Dio(
       BaseOptions(
-        baseUrl: const String.fromEnvironment(
-          'API_BASE_URL',
-          defaultValue: 'https://api.dev.projectscranton.com',
-        ),
+        baseUrl: 'https://expense-tracker-gmqf.onrender.com',
         connectTimeout: const Duration(seconds: 20),
         receiveTimeout: const Duration(seconds: 20),
         responseType: ResponseType.json,
@@ -28,7 +26,8 @@ class DioClient {
             final base = options.baseUrl;
             if (base.isNotEmpty) {
               final uri = Uri.parse(base.endsWith('/') ? base : '$base/');
-              options.headers['Origin'] = '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}';
+              options.headers['Origin'] =
+                  '${uri.scheme}://${uri.host}${uri.hasPort ? ':${uri.port}' : ''}';
               options.headers['Referer'] = uri.toString();
             }
           } catch (_) {}

@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/constants/app_colors.dart';
 import 'package:expense_tracker/core/utils/formatters.dart';
+import 'package:expense_tracker/core/widgets/animated_amount.dart';
 import 'package:expense_tracker/core/widgets/status_views.dart';
 import 'package:expense_tracker/core/widgets/transaction_tile.dart';
 import 'package:expense_tracker/features/accounts/presentation/account_detail_cubit.dart';
@@ -122,13 +123,13 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        gradient: AppColors.buttonGradient,
-        borderRadius: BorderRadius.circular(18),
+        gradient: AppColors.heroGradient,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.28),
-            blurRadius: 14,
-            offset: const Offset(0, 6),
+            color: AppColors.primary.withValues(alpha: 0.3),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -145,8 +146,8 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
             ),
           ),
           const SizedBox(height: 6),
-          Text(
-            formatAmount(account.currentBalance),
+          AnimatedAmount(
+            amount: account.currentBalance,
             style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 28,
@@ -193,6 +194,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
                       ? null
                       : AppColors.surface,
                   borderRadius: BorderRadius.circular(20),
+                  boxShadow: state.period == period.$1 ? null : [appShadow()],
                 ),
                 child: Text(
                   period.$2,
@@ -219,13 +221,7 @@ class _AccountDetailScreenState extends State<AccountDetailScreen> {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFF667085).withValues(alpha: 0.06),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
+        boxShadow: [appShadow()],
       ),
       child: history == null || history.entries.isEmpty
           ? const Padding(

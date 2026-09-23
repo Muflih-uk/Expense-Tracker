@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:expense_tracker/core/constants/app_colors.dart';
 import 'package:expense_tracker/core/di/service_locator.dart';
 import 'package:expense_tracker/features/auth/presentation/auth_bloc.dart';
@@ -8,6 +6,7 @@ import 'package:expense_tracker/features/auth/presentation/screens/register_scre
 import 'package:expense_tracker/features/accounts/presentation/account_detail_cubit.dart';
 import 'package:expense_tracker/features/accounts/presentation/screens/account_detail_screen.dart';
 import 'package:expense_tracker/features/accounts/presentation/screens/accounts_screen.dart';
+import 'package:expense_tracker/features/boot/presentation/screens/boot_screen.dart';
 import 'package:expense_tracker/features/categories/presentation/category_detail_cubit.dart';
 import 'package:expense_tracker/features/categories/presentation/screens/categories_screen.dart';
 import 'package:expense_tracker/features/categories/presentation/screens/category_detail_screen.dart';
@@ -23,70 +22,36 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class BootstrapScreen extends StatelessWidget {
-  const BootstrapScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.surface,
-      body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/images/logo.jpg', width: 84, height: 84),
-            const SizedBox(height: 16),
-            const Text(
-              'monex',
-              style: TextStyle(
-                fontFamily: 'Inter',
-                fontSize: 24,
-                fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 24),
-            const SizedBox(
-              width: 26,
-              height: 26,
-              child: CircularProgressIndicator(
-                strokeWidth: 2.6,
-                color: AppColors.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class GoRouterRefreshStream extends ChangeNotifier {
-  GoRouterRefreshStream(Stream<dynamic> stream) {
-    _subscription = stream.asBroadcastStream().listen((_) => notifyListeners());
-  }
-
-  late final StreamSubscription<dynamic> _subscription;
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
-  }
+class _RouterRefreshNotifier extends ChangeNotifier {
+  void trigger() => notifyListeners();
 }
 
 GoRouter buildAppRouter() {
-  final refresh = GoRouterRefreshStream(authBloc.stream);
+  final refresh = _RouterRefreshNotifier();
+  authBloc.stream.listen((_) => refresh.trigger());
+  bootCubit.stream.listen((_) => refresh.trigger());
   return GoRouter(
     initialLocation: '/bootstrap',
     refreshListenable: refresh,
     redirect: (context, state) {
-      final authStatus = authBloc.state.status;
+      final bootReady = bootCubit.state.isReady;
       final location = state.matchedLocation;
+
+      if (!bootReady) {
+        if (location == '/bootstrap') return null;
+        return '/bootstrap';
+      }
+
+      final authStatus = authBloc.state.status;
       final startedOnboarding = localStorage.isOnboardingComplete;
+      final isBootScreen =
+          location == '/bootstrap' ||
+          location == '/onboarding' ||
+          location == '/login' ||
+          location == '/register';
 
       if (authStatus == AuthStatus.checking) {
-        if (location == '/bootstrap') return null;
+        if (isBootScreen) return null;
         return '/bootstrap';
       }
 
@@ -100,10 +65,7 @@ GoRouter buildAppRouter() {
         return '/login';
       }
 
-      if (location == '/bootstrap' ||
-          location == '/login' ||
-          location == '/register' ||
-          location == '/onboarding') {
+      if (isBootScreen) {
         return '/';
       }
       return null;
@@ -111,7 +73,7 @@ GoRouter buildAppRouter() {
     routes: [
       GoRoute(
         path: '/bootstrap',
-        builder: (_, _) => const BootstrapScreen(),
+        builder: (_, _) => const BootScreen(),
       ),
       GoRoute(
         path: '/onboarding',
@@ -299,69 +261,87 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/add-transaction?type=expense'),
-        backgroundColor: AppColors.primary,
-        shape: const CircleBorder(),
-        elevation: 6,
-        child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
+      floatingActionButton: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: AppColors.buttonGradient,
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.primary.withValues(alpha: 0.4),
+              blurRadius: 14,
+              offset: const Offset(0, 5),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () => context.push('/add-transaction?type=expense'),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          highlightElevation: 0,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add_rounded, color: Colors.white, size: 30),
+        ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
         notchMargin: 8,
         color: AppColors.surface,
-        child: SizedBox(
-          height: 62,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: List.generate(4, (index) {
-              final isSelected = index == navigationShell.currentIndex;
-              final data = destinations[index];
-              return Expanded(
-                child: InkWell(
-                  onTap: () => _onTap(context, index),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedContainer(
-                        duration: const Duration(milliseconds: 240),
-                        curve: Curves.easeOutCubic,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 4,
+        elevation: 0,
+        child: SafeArea(
+          top: false,
+          child: SizedBox(
+            height: 62,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: List.generate(4, (index) {
+                final isSelected = index == navigationShell.currentIndex;
+                final data = destinations[index];
+                return Expanded(
+                  child: InkWell(
+                    onTap: () => _onTap(context, index),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 240),
+                          curve: Curves.easeOutCubic,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? AppColors.primary.withValues(alpha: 0.12)
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          child: Icon(
+                            isSelected ? data.$2 : data.$1,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.hint,
+                            size: 24,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? AppColors.primary.withValues(alpha: 0.12)
-                              : Colors.transparent,
-                          borderRadius: BorderRadius.circular(14),
+                        const SizedBox(height: 2),
+                        Text(
+                          data.$3,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: isSelected
+                                ? AppColors.primary
+                                : AppColors.hint,
+                          ),
                         ),
-                        child: Icon(
-                          isSelected ? data.$2 : data.$1,
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.hint,
-                          size: 24,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        data.$3,
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? AppColors.primary
-                              : AppColors.hint,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              }),
+            ),
           ),
         ),
       ),

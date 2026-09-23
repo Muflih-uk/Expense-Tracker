@@ -106,79 +106,84 @@ class _EntriesScreenState extends State<EntriesScreen> {
   Widget _buildHeader(BuildContext context, TransactionsState state) {
     return Container(
       color: AppColors.surface,
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
+      child: SafeArea(
+        bottom: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 10, 20, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Transactions',
-                style: TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 24,
-                  fontWeight: FontWeight.w800,
-                  color: AppColors.textPrimary,
-                ),
-              ),
-              const Spacer(),
-              IconButton(
-                onPressed: () => _openFilters(state),
-                icon: Badge(
-                  isLabelVisible: _hasActiveFilter(state.filter),
-                  label: const SizedBox(
-                    width: 6,
-                    height: 6,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+              Row(
+                children: [
+                  const Text(
+                    'Transactions',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () => _openFilters(state),
+                    icon: Badge(
+                      isLabelVisible: _hasActiveFilter(state.filter),
+                      label: const SizedBox(
+                        width: 6,
+                        height: 6,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.tune_rounded,
+                        color: AppColors.textPrimary,
+                        size: 24,
                       ),
                     ),
                   ),
-                  child: const Icon(
-                    Icons.tune_rounded,
-                    color: AppColors.textPrimary,
-                    size: 24,
-                  ),
-                ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              AppTextField(
+                controller: _searchController,
+                label: '',
+                hintText: 'Search entries…',
+                prefixIcon: Icons.search_rounded,
+                suffixIcon: _searchController.text.isEmpty
+                    ? null
+                    : IconButton(
+                        onPressed: () {
+                          _searchController.clear();
+                          _debouncer.run(
+                            () => context
+                                .read<TransactionsBloc>()
+                                .add(const TransactionsSearchChanged('')),
+                          );
+                          setState(() {});
+                        },
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          color: AppColors.hint,
+                          size: 20,
+                        ),
+                      ),
+                onChanged: (value) {
+                  setState(() {});
+                  _debouncer.run(
+                    () => context
+                        .read<TransactionsBloc>()
+                        .add(TransactionsSearchChanged(value)),
+                  );
+                },
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          AppTextField(
-            controller: _searchController,
-            label: '',
-            hintText: 'Search entries…',
-            prefixIcon: Icons.search_rounded,
-            suffixIcon: _searchController.text.isEmpty
-                ? null
-                : IconButton(
-                    onPressed: () {
-                      _searchController.clear();
-                      _debouncer.run(
-                        () => context
-                            .read<TransactionsBloc>()
-                            .add(const TransactionsSearchChanged('')),
-                      );
-                      setState(() {});
-                    },
-                    icon: const Icon(
-                      Icons.close_rounded,
-                      color: AppColors.hint,
-                      size: 20,
-                    ),
-                  ),
-            onChanged: (value) {
-              setState(() {});
-              _debouncer.run(
-                () => context
-                    .read<TransactionsBloc>()
-                    .add(TransactionsSearchChanged(value)),
-              );
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
