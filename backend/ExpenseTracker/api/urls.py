@@ -1,6 +1,4 @@
-from django.conf import settings
 from django.urls import path, include
-from django.conf.urls.static import static
 from rest_framework import routers
 from rest_framework.authtoken.views import obtain_auth_token
 from api.views import *
@@ -40,7 +38,3 @@ urlpatterns = [
     # Token authentication (Django REST Framework default)
     path('token/', obtain_auth_token, name="login"),
 ]
-
-# Add media URLs for development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
