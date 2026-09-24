@@ -7,8 +7,8 @@ class DioClient {
     dio = Dio(
       BaseOptions(
         baseUrl: 'https://expense-tracker-gmqf.onrender.com',
-        connectTimeout: const Duration(seconds: 20),
-        receiveTimeout: const Duration(seconds: 20),
+        connectTimeout: const Duration(seconds: 60),
+        receiveTimeout: const Duration(seconds: 60),
         responseType: ResponseType.json,
       ),
     );
